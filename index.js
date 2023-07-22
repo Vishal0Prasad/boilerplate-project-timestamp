@@ -24,7 +24,46 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+function numCheck(dateString){
+  let toNum = Number(dateString);
+  if(isNaN(toNum))
+    return false;
+  return true;
+}
 
+app.get("/api/:date?",function(req,res, next){
+
+  const isNum = numCheck(req.params.date);
+  const isValid = !isNaN(Date.parse(req.params.date))
+
+  if(!req.params.date){
+    let date = new Date();
+    res.send({
+      unix: Number(date.getTime()),
+      utc:  date.toUTCString()
+    })
+  }
+  else if(!isNum && !isValid){
+    res.send({
+      error: "Invalid Date"
+    });
+  }
+  else if(isNum){
+    let date = new Date(Number(req.params.date));
+    res.send({
+      unix: Number(date.getTime()),
+      utc: date.toUTCString(),
+    })
+  }
+  else{
+    let date = new Date(req.params.date);
+    res.send({
+      unix: Number(date.getTime()),
+      utc: date.toUTCString(),
+    })
+  }
+  next();
+})
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
